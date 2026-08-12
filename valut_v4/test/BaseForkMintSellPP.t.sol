@@ -72,4 +72,14 @@ contract BaseForkMintSellPPTest {
         require(e.cumulativeMinted()>0,"no mint volume");
         require(e.cumulativeSurplusUSDC()>0,"no cumulative surplus");
     }
+
+    function testPausedEmergencyExitReturnsAllUSDC() public {
+        uint256 beforeBalance=usdc.balanceOf(address(this));
+        uint256 held=usdc.balanceOf(address(e));
+        e.setPaused(true);
+        uint256 exited=e.emergencyExit(address(this));
+        require(exited==held,"exit amount");
+        require(usdc.balanceOf(address(e))==0,"contract balance");
+        require(usdc.balanceOf(address(this))==beforeBalance+held,"recipient balance");
+    }
 }

@@ -19,6 +19,9 @@ interface IERC20BaseExp {
 contract USDSMintSellPPBaseExperiment {
     IERC20BaseExp public immutable usdc;
     address public owner;
+    address public pendingOwner;
+    bool public paused;
+    bool private entered;
     uint256 public reserveUSDS; // 18d
     uint256 public reserveUSDC; // raw 6d on Base native USDC
     uint256 public ppBufferUSDC;
@@ -35,16 +38,32 @@ contract USDSMintSellPPBaseExperiment {
 
     event Cycle(uint256 minted,uint256 saleProceeds,uint256 ppTopup,uint256 priceAfterSell,uint256 priceFinal);
     event ValueAdded(uint256 amount,uint256 bufferReplenished,uint256 surplus);
+    event OwnershipTransferStarted(address indexed owner,address indexed pendingOwner);
+    event OwnershipTransferred(address indexed oldOwner,address indexed newOwner);
+    event Paused(bool status);
+    event EmergencyExit(address indexed recipient,uint256 amount);
 
     modifier onlyOwner(){require(msg.sender==owner,"owner");_;}
-    constructor(address usdc_){owner=msg.sender;usdc=IERC20BaseExp(usdc_);require(usdc.decimals()==6,"USDC6");}
+    modifier whenNotPaused(){require(!paused,"paused");_;}
+    modifier nonReentrant(){require(!entered,"reentrant");entered=true;_;entered=false;}
+    constructor(address usdc_){require(usdc_!=address(0) && usdc_.code.length>0,"USDC");owner=msg.sender;usdc=IERC20BaseExp(usdc_);require(usdc.decimals()==6,"USDC6");}
 
-    function seed(uint256 usds,uint256 usdcRaw,uint256 bufferRaw) external onlyOwner {
-        require(reserveUSDS==0,"seeded");
-        require(usdc.transferFrom(msg.sender,address(this),usdcRaw+bufferRaw),"transfer");
+    function transferOwnership(address next) external onlyOwner {require(next!=address(0),"zero");pendingOwner=next;emit OwnershipTransferStarted(owner,next);}
+    function acceptOwnership() external {require(msg.sender==pendingOwner,"pending");address old=owner;owner=msg.sender;pendingOwner=address(0);emit OwnershipTransferred(old,msg.sender);}
+    function setPaused(bool status) external onlyOwner {paused=status;emit Paused(status);}
+
+    function _pull(address from,uint256 amount) internal {
+        uint256 beforeBalance=usdc.balanceOf(address(this));
+        require(usdc.transferFrom(from,address(this),amount),"transfer");
+        require(usdc.balanceOf(address(this))==beforeBalance+amount,"fee token");
+    }
+
+    function seed(uint256 usds,uint256 usdcRaw,uint256 bufferRaw) external onlyOwner whenNotPaused nonReentrant {
+        require(reserveUSDS==0 && usds>0 && usdcRaw>0 && bufferRaw>0,"seed");
+        _pull(msg.sender,usdcRaw+bufferRaw);
         reserveUSDS=usds; reserveUSDC=usdcRaw; ppBufferUSDC=bufferRaw; totalSupplyUSDS=usds;
     }
-    function fundPPBuffer(uint256 amount) external {require(usdc.transferFrom(msg.sender,address(this),amount),"transfer");ppBufferUSDC+=amount;}
+    function fundPPBuffer(uint256 amount) external whenNotPaused nonReentrant {require(amount>0,"amount");_pull(msg.sender,amount);ppBufferUSDC+=amount;}
     function getPrice() public view returns(uint256){return reserveUSDS==0?0:(reserveUSDC*1e12*ONE)/reserveUSDS;}
     function externalNAVUSDC() public view returns(uint256){return reserveUSDC+ppBufferUSDC+productiveUSDC+cumulativeSurplusUSDC;}
 
@@ -65,7 +84,7 @@ contract USDSMintSellPPBaseExperiment {
     }
 
     /** Atomic final-state peg restoration. The protocol retains sale proceeds as productive capital. */
-    function mintSellRestore(uint256 mintUSDS,uint256 maxTopupUSDC) external onlyOwner returns(uint256 saleProceeds,uint256 ppTopup){
+    function mintSellRestore(uint256 mintUSDS,uint256 maxTopupUSDC) external onlyOwner whenNotPaused nonReentrant returns(uint256 saleProceeds,uint256 ppTopup){
         require(mintUSDS>0,"mint");
         uint256 priceAfter;
         (saleProceeds,priceAfter,ppTopup)=quoteMintSell(mintUSDS);
@@ -88,13 +107,24 @@ contract USDSMintSellPPBaseExperiment {
     }
 
     /** Real external value added enters later and replenishes PP buffer first. */
-    function depositRealizedValueAdded(uint256 amount,uint256 replenishTarget) external onlyOwner returns(uint256 replenished,uint256 surplus){
-        require(usdc.transferFrom(msg.sender,address(this),amount),"transfer");
+    function depositRealizedValueAdded(uint256 amount,uint256 replenishTarget) external onlyOwner whenNotPaused nonReentrant returns(uint256 replenished,uint256 surplus){
+        require(amount>0,"amount");_pull(msg.sender,amount);
         cumulativeRealizedValueAddedUSDC += amount;
         replenished=amount<replenishTarget?amount:replenishTarget;
         ppBufferUSDC += replenished;
         surplus=amount-replenished;
         cumulativeSurplusUSDC += surplus;
         emit ValueAdded(amount,replenished,surplus);
+    }
+
+    /** Paused-only recovery. This irreversibly closes accounting before transferring all USDC. */
+    function emergencyExit(address recipient) external onlyOwner nonReentrant returns(uint256 amount) {
+        require(paused && recipient!=address(0),"exit");
+        amount=usdc.balanceOf(address(this));
+        reserveUSDS=0;reserveUSDC=0;ppBufferUSDC=0;productiveUSDC=0;cumulativeSurplusUSDC=0;
+        totalSupplyUSDS=0;
+        require(usdc.transfer(recipient,amount),"transfer");
+        require(usdc.balanceOf(address(this))==0,"balance");
+        emit EmergencyExit(recipient,amount);
     }
 }
