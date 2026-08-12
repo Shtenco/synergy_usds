@@ -51,7 +51,7 @@ def sell_minted_and_restore(x,y,q,value_added_multiple=3.0,gas=0.01):
     return e,out,x2,y2,p2,topup,min_va,va,surplus,x2,y3,y3/x2
 
 
-def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1_000_000.0, pp_buffer=None):
+def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1.0, pp_buffer=None):
     if pp_buffer is None:
         pp_buffer = initial
     initial_external_capital = initial + pp_buffer
@@ -96,9 +96,9 @@ if __name__=='__main__':
       w=csv.DictWriter(f,fieldnames=scenarios[0].keys(),lineterminator='\n');w.writeheader();w.writerows(scenarios)
 
     print('BASE MINT->SELL->VALUE->RESTORE PP MODEL')
-    print('Fee 30bp, protocol token burn 10bp, initial pool $1m USDS / $1m USDC')
+    print('Fee 30bp, protocol token burn 10bp, initial pool 1 USDS / $1 USDC')
     for q in [0.001,0.005,0.01,0.02,0.05]:
       rows,s=run(q=q,cycles=100,m=3.0,gas=0.01)
       r=rows[0]
       print(f"q={q*100:5.2f}% | first sale=${r.sale_proceeds:,.2f} | P_after={r.p_after_sell:.6f} | topup=${r.topup_to_peg:,.2f} | minVA/sale={r.min_value_added/r.sale_proceeds:.4f}x | surplus@3x=${r.surplus:,.2f} | 100cy surplus/init$={s['distributable_surplus_per_initial_external_dollar']:.3f}x | finalP={s['final_price']:.12f}")
-    print('\nThe denominator is $2m of external USDC: $1m pool reserve + $1m PP buffer. The x3 value-added is an input assumption, not profit produced by minting.')
+    print('\nThe denominator is $2 of external USDC: $1 pool reserve + $1 PP buffer. The x3 value-added is an input assumption, not profit produced by minting.')

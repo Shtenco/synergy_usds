@@ -28,11 +28,11 @@ contract BaseForkMintSellPPTest {
         usdc=IERC20BaseExp(BASE_USDC);
         require(address(usdc).code.length>0,"USDC missing");
         vm.prank(whale);
-        require(usdc.transfer(address(this),5_000_000*U),"whale fund");
+        require(usdc.transfer(address(this),10*U),"whale fund");
         e=new USDSMintSellPPBaseExperiment(BASE_USDC);
         require(usdc.approve(address(e),type(uint256).max),"approve");
-        // $1m actual pool reserve + $1m PP working-capital buffer.
-        e.seed(1_000_000*D,1_000_000*U,1_000_000*U);
+        // $2 total external capital: $1 pool reserve + $1 PP buffer.
+        e.seed(1*D,1*U,1*U);
     }
 
     function testMintSell1Pct_FinalPP100_ThenX3ValueAdded() public {

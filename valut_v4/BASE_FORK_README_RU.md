@@ -2,8 +2,8 @@
 
 Target experiment: mint USDS, sell into USDS/USDC CPMM, retain the received USDC as productive capital, and finish the transaction with pool price exactly $1 using a pre-funded PP buffer. The PP buffer is later replenished from realized external value-added.
 
-Полная экономическая интерпретация, включая знаменатель `$2 млн`, результат
-`$0.8309` на стартовый доллар и ограничения допущения `3x`, приведена в
+Полная экономическая интерпретация системы со стартовым капиталом ровно `$2`
+и ограничения допущения `3x` приведены в
 корневом [`README.md`](../README.md).
 
 Base native USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`.
@@ -11,11 +11,11 @@ Base native USDC: `0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913`.
 ## Запуск
 
 Запускайте команды из каталога `valut_v4`. Нужны Foundry, архивный/full RPC
-Base и адрес держателя с балансом не менее 5 млн native USDC на выбранном блоке:
+Base и адрес держателя с балансом не менее 10 native USDC на выбранном блоке:
 
 ```bash
 BASE_RPC_URL=<archive/full Base RPC> \
-BASE_USDC_WHALE=<holder with >= 5m USDC at fork head> \
+BASE_USDC_WHALE=<holder with >= 10 USDC at fork head> \
 forge test --match-contract BaseForkMintSellPPTest -vvv
 ```
 

@@ -27,15 +27,17 @@ class MintSellPPModelTest(unittest.TestCase):
         self.assertGreater(ratio, 2.0)
         self.assertLess(ratio, 2.01)
 
-    def test_three_x_value_added_leaves_positive_surplus(self):
+    def test_three_x_value_added_surplus_includes_gas(self):
         for q in (0.001, 0.005, 0.01, 0.02, 0.05):
             rows, _ = MODEL.run(q=q, cycles=100, m=3.0)
-            self.assertTrue(all(row.surplus > 0 for row in rows))
+            self.assertTrue(all(math.isclose(
+                row.surplus, row.value_added - row.topup_to_peg - row.gas
+            ) for row in rows))
 
     def test_return_denominator_includes_pool_and_pp_buffer(self):
         _, summary = MODEL.run(q=0.01, cycles=100, m=3.0)
-        self.assertEqual(summary["initial_external_capital"], 2_000_000.0)
-        expected = summary["cumulative_surplus_usdc"] / 2_000_000.0
+        self.assertEqual(summary["initial_external_capital"], 2.0)
+        expected = summary["cumulative_surplus_usdc"] / 2.0
         self.assertTrue(math.isclose(
             summary["distributable_surplus_per_initial_external_dollar"], expected
         ))
