@@ -32,6 +32,14 @@ class MintSellPPModelTest(unittest.TestCase):
             rows, _ = MODEL.run(q=q, cycles=100, m=3.0)
             self.assertTrue(all(row.surplus > 0 for row in rows))
 
+    def test_return_denominator_includes_pool_and_pp_buffer(self):
+        _, summary = MODEL.run(q=0.01, cycles=100, m=3.0)
+        self.assertEqual(summary["initial_external_capital"], 2_000_000.0)
+        expected = summary["cumulative_surplus_usdc"] / 2_000_000.0
+        self.assertTrue(math.isclose(
+            summary["distributable_surplus_per_initial_external_dollar"], expected
+        ))
+
 
 if __name__ == "__main__":
     unittest.main()

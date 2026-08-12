@@ -51,7 +51,10 @@ def sell_minted_and_restore(x,y,q,value_added_multiple=3.0,gas=0.01):
     return e,out,x2,y2,p2,topup,min_va,va,surplus,x2,y3,y3/x2
 
 
-def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1_000_000.0):
+def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1_000_000.0, pp_buffer=None):
+    if pp_buffer is None:
+        pp_buffer = initial
+    initial_external_capital = initial + pp_buffer
     x=y=initial
     rows=[]
     total_mint=total_sale=total_va=total_topup=total_gas=total_surplus=0.0
@@ -63,7 +66,9 @@ def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1_000_000.0):
         x,y=xf,yf
     return rows, {
       'q':q,'cycles':cycles,'value_added_multiple':m,'gas_per_cycle_usd':gas,
-      'initial_real_capital':initial,
+      'initial_pool_usdc':initial,
+      'initial_pp_buffer_usdc':pp_buffer,
+      'initial_external_capital':initial_external_capital,
       'final_pool_external_usdc':y,
       'final_display_tvl':2*y,
       'cumulative_minted_usds':total_mint,
@@ -72,9 +77,10 @@ def run(q=0.01, cycles=100, m=3.0, gas=0.01, initial=1_000_000.0):
       'cumulative_topup_usdc':total_topup,
       'cumulative_gas_usd':total_gas,
       'cumulative_surplus_usdc':total_surplus,
-      'mint_per_initial_external_dollar':total_mint/initial,
-      'sale_proceeds_per_initial_external_dollar':total_sale/initial,
-      'value_added_per_initial_external_dollar':total_va/initial,
+      'mint_per_initial_external_dollar':total_mint/initial_external_capital,
+      'sale_proceeds_per_initial_external_dollar':total_sale/initial_external_capital,
+      'value_added_per_initial_external_dollar':total_va/initial_external_capital,
+      'distributable_surplus_per_initial_external_dollar':total_surplus/initial_external_capital,
       'final_price':y/x,
     }
 
@@ -87,12 +93,12 @@ if __name__=='__main__':
           scenarios.append(s)
     out=Path(__file__).with_name('base_v5_mint_sell_pp_stress.csv')
     with open(out,'w',newline='') as f:
-      w=csv.DictWriter(f,fieldnames=scenarios[0].keys());w.writeheader();w.writerows(scenarios)
+      w=csv.DictWriter(f,fieldnames=scenarios[0].keys(),lineterminator='\n');w.writeheader();w.writerows(scenarios)
 
     print('BASE MINT->SELL->VALUE->RESTORE PP MODEL')
     print('Fee 30bp, protocol token burn 10bp, initial pool $1m USDS / $1m USDC')
     for q in [0.001,0.005,0.01,0.02,0.05]:
       rows,s=run(q=q,cycles=100,m=3.0,gas=0.01)
       r=rows[0]
-      print(f"q={q*100:5.2f}% | first sale=${r.sale_proceeds:,.2f} | P_after={r.p_after_sell:.6f} | topup=${r.topup_to_peg:,.2f} | minVA/sale={r.min_value_added/r.sale_proceeds:.4f}x | surplus@3x=${r.surplus:,.2f} | 100cy mint/init$={s['mint_per_initial_external_dollar']:.3f}x | finalP={s['final_price']:.12f}")
-    print('\nProductive-principal mode: sale proceeds stay deployed, so PP buffer needs ~2x sale proceeds for small q. x3 NEW value added replenishes that buffer and leaves ~1x sale proceeds as net surplus before gas.')
+      print(f"q={q*100:5.2f}% | first sale=${r.sale_proceeds:,.2f} | P_after={r.p_after_sell:.6f} | topup=${r.topup_to_peg:,.2f} | minVA/sale={r.min_value_added/r.sale_proceeds:.4f}x | surplus@3x=${r.surplus:,.2f} | 100cy surplus/init$={s['distributable_surplus_per_initial_external_dollar']:.3f}x | finalP={s['final_price']:.12f}")
+    print('\nThe denominator is $2m of external USDC: $1m pool reserve + $1m PP buffer. The x3 value-added is an input assumption, not profit produced by minting.')
