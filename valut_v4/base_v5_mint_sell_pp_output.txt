@@ -1,0 +1,9 @@
+BASE MINT->SELL->VALUE->RESTORE PP MODEL
+Fee 30bp, protocol token burn 10bp, initial pool 1 USDS / $1 USDC
+q= 0.10% | first sale=$0.00 | P_after=0.998007 | topup=$0.00 | minVA/sale=12.0431x | surplus@3x=$-0.01 | 100cy surplus/init$=-0.448x | finalP=1.000000000000
+q= 0.50% | first sale=$0.00 | P_after=0.990094 | topup=$0.01 | minVA/sale=4.0230x | surplus@3x=$-0.01 | 100cy surplus/init$=-0.182x | finalP=1.000000000000
+q= 1.00% | first sale=$0.01 | P_after=0.980335 | topup=$0.02 | minVA/sale=3.0250x | surplus@3x=$-0.00 | 100cy surplus/init$=0.331x | finalP=1.000000000000
+q= 2.00% | first sale=$0.02 | P_after=0.961244 | topup=$0.04 | minVA/sale=2.5335x | surplus@3x=$0.01 | 100cy surplus/init$=2.481x | finalP=1.000000000000
+q= 5.00% | first sale=$0.05 | P_after=0.907202 | topup=$0.10 | minVA/sale=2.2626x | surplus@3x=$0.04 | 100cy surplus/init$=58.024x | finalP=1.000000000000
+
+The denominator is $2 of external USDC: $1 pool reserve + $1 PP buffer. The x3 value-added is an input assumption, not profit produced by minting.
