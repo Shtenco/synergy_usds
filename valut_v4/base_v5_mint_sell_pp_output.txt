@@ -1,0 +1,9 @@
+BASE MINT->SELL->VALUE->RESTORE PP MODEL
+Fee 30bp, protocol token burn 10bp, initial pool $1m USDS / $1m USDC
+q= 0.10% | first sale=$996.01 | P_after=0.998007 | topup=$1,995.01 | minVA/sale=2.0030x | surplus@3x=$993.00 | 100cy mint/init$=0.105x | finalP=1.000000000000
+q= 0.50% | first sale=$4,960.27 | P_after=0.990094 | topup=$9,955.27 | minVA/sale=2.0070x | surplus@3x=$4,925.54 | 100cy mint/init$=0.646x | finalP=1.000000000000
+q= 1.00% | first sale=$9,871.58 | P_after=0.980335 | topup=$19,861.58 | minVA/sale=2.0120x | surplus@3x=$9,753.15 | 100cy mint/init$=1.704x | finalP=1.000000000000
+q= 2.00% | first sale=$19,550.17 | P_after=0.961244 | topup=$39,530.17 | minVA/sale=2.0220x | surplus@3x=$19,120.33 | 100cy mint/init$=6.237x | finalP=1.000000000000
+q= 5.00% | first sale=$47,482.97 | P_after=0.907202 | topup=$97,432.97 | minVA/sale=2.0520x | surplus@3x=$45,015.94 | 100cy mint/init$=130.007x | finalP=1.000000000000
+
+Productive-principal mode: sale proceeds stay deployed, so PP buffer needs ~2x sale proceeds for small q. x3 NEW value added replenishes that buffer and leaves ~1x sale proceeds as net surplus before gas.
