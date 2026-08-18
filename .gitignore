@@ -1,0 +1,20 @@
+# Private/deployer material — never commit
+.private/
+*.key
+*.pem
+*.p12
+*.pfx
+*.keystore
+*.seed
+*.mnemonic
+
+# Environment secrets
+.env
+.env.*
+!.env.example
+
+# Local deployment state
+broadcast/
+cache/
+out/
+artifacts/
