@@ -7,6 +7,7 @@ from decimal import Decimal, InvalidOperation
 SCHEMA = "usds.experiment-result/v1"
 ZERO = Decimal("0")
 HEX = frozenset("0123456789abcdef")
+MAX_SAFE_JSON_INTEGER = 9_007_199_254_740_991
 ALLOWED_MODES = frozenset({"SIMULATION", "FORK", "LIVE_OBSERVED"})
 
 
@@ -94,8 +95,15 @@ class USDExperimentResult:
         if not isinstance(self.price_restored, bool) or not isinstance(self.supply_closed, bool):
             raise ExperimentInvariantError("price_restored and supply_closed must be booleans")
         if self.fork_block is not None:
-            if isinstance(self.fork_block, bool) or not isinstance(self.fork_block, int) or self.fork_block < 0:
-                raise ExperimentInvariantError("fork_block must be a non-negative integer or null")
+            if (
+                isinstance(self.fork_block, bool)
+                or not isinstance(self.fork_block, int)
+                or self.fork_block < 0
+                or self.fork_block > MAX_SAFE_JSON_INTEGER
+            ):
+                raise ExperimentInvariantError(
+                    "fork_block must be a non-negative cross-language safe integer or null"
+                )
 
         numeric_fields = (
             "initial_external_capital",
