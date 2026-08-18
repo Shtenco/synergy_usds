@@ -1,0 +1,33 @@
+name: usds-experiment-handoff-v1
+
+on:
+  pull_request:
+    paths:
+      - 'usds_federation/**'
+      - 'schemas/usds_experiment_result_v1.schema.json'
+      - 'tests/test_experiment_handoff.py'
+      - 'tests/test_experiment_handoff_schema.py'
+      - 'docs/EXPERIMENT_HANDOFF_V1_20260818.md'
+      - '.github/workflows/experiment-handoff-v1.yml'
+  workflow_dispatch:
+
+concurrency:
+  group: usds-experiment-handoff-v1-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  handoff:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+      - name: Compile handoff package
+        run: python -m compileall -q usds_federation
+      - name: Run USDS handoff regressions
+        run: python -m pytest tests/test_experiment_handoff.py tests/test_experiment_handoff_schema.py -q
