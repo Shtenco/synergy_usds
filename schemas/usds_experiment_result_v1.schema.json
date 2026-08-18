@@ -1,0 +1,74 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sinergy.system/schemas/usds.experiment-result/v1",
+  "title": "USDS Experiment Result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "$defs": {
+    "decimal_nonnegative": {
+      "type": "string",
+      "pattern": "^(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+    },
+    "decimal_signed": {
+      "type": "string",
+      "pattern": "^-?(0|[1-9][0-9]*)(\\.[0-9]*[1-9])?$"
+    },
+    "hex64_or_null": {
+      "oneOf": [
+        {"type": "string", "pattern": "^[a-fA-F0-9]{64}$"},
+        {"type": "null"}
+      ]
+    }
+  },
+  "required": [
+    "schema",
+    "experiment_id",
+    "classification",
+    "mode",
+    "network",
+    "fork_block",
+    "reporting_asset",
+    "initial_external_capital",
+    "minted_usds_notional",
+    "sale_proceeds",
+    "restoration_external_cost",
+    "gas_and_external_costs",
+    "external_value_added",
+    "external_pnl_candidate",
+    "closing_usds_liability",
+    "price_restored",
+    "supply_closed",
+    "external_value_evidence_digest",
+    "execution_evidence_digest",
+    "accounting_authority",
+    "credential_inputs_allowed"
+  ],
+  "properties": {
+    "schema": {"const": "usds.experiment-result/v1"},
+    "experiment_id": {"type": "string", "minLength": 1},
+    "classification": {"const": "RND_ONLY"},
+    "mode": {"enum": ["SIMULATION", "FORK", "LIVE_OBSERVED"]},
+    "network": {"type": "string", "minLength": 1},
+    "fork_block": {
+      "oneOf": [
+        {"type": "integer", "minimum": 0, "maximum": 9007199254740991},
+        {"type": "null"}
+      ]
+    },
+    "reporting_asset": {"type": "string", "minLength": 1, "maxLength": 16},
+    "initial_external_capital": {"$ref": "#/$defs/decimal_nonnegative"},
+    "minted_usds_notional": {"$ref": "#/$defs/decimal_nonnegative"},
+    "sale_proceeds": {"$ref": "#/$defs/decimal_nonnegative"},
+    "restoration_external_cost": {"$ref": "#/$defs/decimal_nonnegative"},
+    "gas_and_external_costs": {"$ref": "#/$defs/decimal_nonnegative"},
+    "external_value_added": {"$ref": "#/$defs/decimal_nonnegative"},
+    "external_pnl_candidate": {"$ref": "#/$defs/decimal_signed"},
+    "closing_usds_liability": {"$ref": "#/$defs/decimal_nonnegative"},
+    "price_restored": {"type": "boolean"},
+    "supply_closed": {"type": "boolean"},
+    "external_value_evidence_digest": {"$ref": "#/$defs/hex64_or_null"},
+    "execution_evidence_digest": {"$ref": "#/$defs/hex64_or_null"},
+    "accounting_authority": {"const": "Shtenco/synergy_financial_os"},
+    "credential_inputs_allowed": {"const": false}
+  }
+}
