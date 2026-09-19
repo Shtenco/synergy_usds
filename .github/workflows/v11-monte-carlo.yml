@@ -1,0 +1,33 @@
+name: V11 Monte Carlo + Base Fork
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths:
+      - "valut_v11_monte_carlo/**"
+      - ".github/workflows/v11-monte-carlo.yml"
+  workflow_dispatch:
+
+jobs:
+  v11:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Monte Carlo invariants
+        working-directory: valut_v11_monte_carlo/model
+        run: python3 -m unittest -v test_v11.py
+      - name: Small optimizer smoke run
+        working-directory: valut_v11_monte_carlo/model
+        run: python3 monte_carlo_v11.py --trials 20 --out v11_grid_ci.csv
+      - name: Compile V11
+        working-directory: valut_v11_monte_carlo
+        run: forge build
+      - name: Base mainnet fork pool registry
+        working-directory: valut_v11_monte_carlo
+        env:
+          BASE_RPC_URL: https://mainnet.base.org
+        run: forge test -vvv
