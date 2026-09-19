@@ -1,0 +1,29 @@
+name: V6 Bridge Economics + Base Fork
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths: ["valut_v6_bridge/**", ".github/workflows/v6-bridge.yml"]
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Python economic invariants
+        working-directory: valut_v6_bridge/model
+        run: python3 -m unittest -v test_perpetual_bridge_v6.py
+      - name: Compile contracts
+        working-directory: valut_v6_bridge
+        run: forge build
+      - name: Base mainnet fork
+        working-directory: valut_v6_bridge
+        env:
+          BASE_RPC_URL: https://mainnet.base.org
+          BASE_FUNDING_POOL: "0x3fe04a59ebd38cf06080a6f60a98d124eb59392a"
+        run: forge test --match-contract BaseForkBridgeV6Test -vvv
