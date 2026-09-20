@@ -1,0 +1,25 @@
+name: V16 PrintMoney Engine
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths:
+      - "valut_v16_printmoney_engine/**"
+      - ".github/workflows/v16-printmoney.yml"
+  workflow_dispatch:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Python economic invariants
+        working-directory: valut_v16_printmoney_engine/model
+        run: python3 -m unittest -v test_v16.py
+      - name: Solidity policy tests
+        working-directory: valut_v16_printmoney_engine
+        run: forge test -vvv
