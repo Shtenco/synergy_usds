@@ -1,0 +1,1 @@
+[profile.default]\nsrc="src"\ntest="test"\nout="out"\nsolc_version="0.8.20"\noptimizer=true\noptimizer_runs=200\n
