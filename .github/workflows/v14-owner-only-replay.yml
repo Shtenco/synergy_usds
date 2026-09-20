@@ -1,0 +1,33 @@
+name: V14 Owner-Only Historical Replay
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths:
+      - "valut_v14_owner_only_replay/**"
+      - ".github/workflows/v14-owner-only-replay.yml"
+  workflow_dispatch:
+
+jobs:
+  replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit invariants
+        working-directory: valut_v14_owner_only_replay
+        run: python3 -m unittest -v test_v14.py
+      - name: Fetch latest real Base WETH/USDC blocks
+        working-directory: valut_v14_owner_only_replay
+        run: |
+          python3 fetch_base_swaps.py             --rpc https://mainnet.base.org             --blocks 300             --chunk 10             --out base_weth_usdc_blocks.csv
+      - name: Owner-only replay
+        working-directory: valut_v14_owner_only_replay
+        run: |
+          python3 owner_only_replay_v14.py             base_weth_usdc_blocks.csv             --last 50             --json-out v14_result.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v14-owner-only-replay
+          path: |
+            valut_v14_owner_only_replay/base_weth_usdc_blocks.csv
+            valut_v14_owner_only_replay/v14_result.json
