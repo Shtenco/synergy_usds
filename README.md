@@ -182,3 +182,42 @@ flowchart LR
 Любое сильное утверждение должно указывать на воспроизводимый тест, benchmark, ledger/evidence artifact или формально проверяемый контракт.
 
 <!-- SYNERGY-FEDERATION-PASSPORT:END -->
+
+---
+
+# 💵 Глубокий доказательный паспорт USDS
+
+## Фактический `main`
+
+USDS содержит Python-модель, Foundry Base-fork experiment, stress CSV и explicit stablecoin stress gate.
+
+```text
+valut_v4/base_v5_mint_sell_pp.py
+valut_v4/src/USDSMintSellPPBaseExperiment.sol
+valut_v4/test/BaseForkMintSellPP.t.sol
+valut_v4/test_model.py
+docs/STABLECOIN_STRESS_GATE_V1.md
+```
+
+## Главный научный результат
+
+README уже корректно отделяет `value_added` как внешнюю гипотезу от mint/sell mechanics. Это фундаментальный инвариант:
+
+```text
+MINT + SELL != profit
+sale proceeds != new value
+value_added must come from external productive engine
+```
+
+## Критическая security проблема `main`
+
+В дереве присутствует файл `base-mainnet-deployer.key`. README должен считать любые committed private/deployer key artifacts критическим supply-chain риском: такой ключ нельзя считать безопасным для production независимо от его текущего баланса/назначения.
+
+## Следующий рубеж
+
+- rotate/remove any committed secret material;
+- exact receipt-based gas;
+- stress test reserve depletion;
+- no-external-value baseline as mandatory control;
+- fork tests with explicit accounting ledger;
+- production claims запрещены до external engine evidence.
