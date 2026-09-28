@@ -1,0 +1,12 @@
+# Secrets and deployer credentials
+*.key
+*.pem
+*.p12
+*.pfx
+.env
+.env.*
+!.env.example
+
+# Local deployment artifacts
+deployment-secrets/
+secrets/
