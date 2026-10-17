@@ -1,0 +1,32 @@
+name: V17 Dynamic Central Bank
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths:
+      - "valut_v17_dynamic_cb/**"
+      - ".github/workflows/v17-dynamic-cb.yml"
+  workflow_dispatch:
+
+jobs:
+  v17:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: foundry-rs/foundry-toolchain@v1
+        with:
+          version: stable
+      - name: Python invariants
+        working-directory: valut_v17_dynamic_cb/model
+        run: python3 -m unittest -v test_v17.py
+      - name: Produce 50/500/5000 block frontier
+        working-directory: valut_v17_dynamic_cb/model
+        run: python3 dynamic_cb_v17.py --mc-trials 500 --json-out v17_results.json
+      - name: Solidity policy tests
+        working-directory: valut_v17_dynamic_cb
+        run: forge test -vvv
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v17-results
+          path: valut_v17_dynamic_cb/model/v17_results.json

@@ -1,0 +1,33 @@
+name: V18 External Edge Miner
+
+on:
+  push:
+    branches: ["feature/perpetual-bridge-v6"]
+    paths:
+      - "valut_v18_external_edge/**"
+      - ".github/workflows/v18-edge-miner.yml"
+  workflow_dispatch:
+
+jobs:
+  edge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unit tests
+        working-directory: valut_v18_external_edge
+        run: python3 -m unittest -v test_v18.py
+      - name: Fetch real multi-venue Base logs
+        working-directory: valut_v18_external_edge
+        run: |
+          python3 fetch_multivenue_base.py             --rpc https://mainnet.base.org             --blocks 5000             --chunk 20             --out v18_multivenue.csv
+      - name: Mine OOS external edge
+        working-directory: valut_v18_external_edge
+        run: |
+          python3 edge_miner_v18.py v18_multivenue.csv             --json-out v18_results.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: v18-external-edge
+          path: |
+            valut_v18_external_edge/v18_multivenue.csv
+            valut_v18_external_edge/v18_results.json
