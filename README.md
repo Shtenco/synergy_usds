@@ -152,17 +152,17 @@ Deploy-скрипт отказывается работать не на chain ID
 <!-- SYNERGY-FEDERATION-PASSPORT:START -->
 ---
 
-## 🧭 SYNERGY federation passport
+##  SYNERGY federation passport
 
-**Домен:** 💵 Monetary / stable-asset R&D  
+**Домен:**  Monetary / stable-asset R&D  
 **Архитектурный родитель:** [`synergy_ai_blockchain`](https://github.com/Shtenco/synergy_ai_blockchain)  
 **Архитектурный корень:** [`synergy_system`](https://github.com/Shtenco/synergy_system)
 
 ```mermaid
 flowchart LR
-    SYS[🧭 synergy_system] --> P[synergy_ai_blockchain]
+    SYS[ synergy_system] --> P[synergy_ai_blockchain]
     P --> THIS[synergy_usds]
-    THIS --> E[📦 Evidence / outputs]
+    THIS --> E[ Evidence / outputs]
 ```
 
 Архитектурная принадлежность не заменяет доказанную интеграцию. Runtime-связь должна подтверждаться контрактами, manifests, deployment-конфигурацией или тестами.
@@ -173,9 +173,9 @@ flowchart LR
 
 ### Навигация
 
-- [📚 Атлас 75 репозиториев](https://github.com/Shtenco/synergy_system/blob/main/docs/SYNERGY_REPOSITORY_ATLAS.md)
-- [🧾 Registry](https://github.com/Shtenco/synergy_system/blob/main/registry/SYNERGY_REPOSITORIES.json)
-- [🧭 Architecture root](https://github.com/Shtenco/synergy_system)
+- [ Атлас 75 репозиториев](https://github.com/Shtenco/synergy_system/blob/main/docs/SYNERGY_REPOSITORY_ATLAS.md)
+- [ Registry](https://github.com/Shtenco/synergy_system/blob/main/registry/SYNERGY_REPOSITORIES.json)
+- [ Architecture root](https://github.com/Shtenco/synergy_system)
 
 ### Evidence rule
 
@@ -185,7 +185,7 @@ flowchart LR
 
 ---
 
-# 💵 Глубокий доказательный паспорт USDS
+#  Глубокий доказательный паспорт USDS
 
 ## Фактический `main`
 
