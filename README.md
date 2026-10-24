@@ -1,3 +1,10 @@
+<!-- SCIENTIFIC-PROFILE-2026:START -->
+<img src="assets/readme/research-architecture.svg" width="100%" alt="USDS / PEG RESTORATION ECONOMICS"/>
+
+[Научный профиль и инженерная архитектура](docs/SCIENTIFIC_PROFILE_2026.md) — отдельное исследовательское дополнение; весь предыдущий README сохранён без сокращений.
+
+<!-- SCIENTIFIC-PROFILE-2026:END -->
+
 # USDS: экономическая модель Base fork
 
 Эксперимент моделирует цикл **MINT USDS → SELL в CPMM → восстановление цены до
